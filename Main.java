@@ -197,6 +197,10 @@ public class Main extends Application {
         ImageView cherryBombImg = new ImageView(new Image(new FileInputStream("src/sample/PlantsVsZombies_Images/CherryBombSeed.png"),150,80,false,false));
         ImageView wallnutImg = new ImageView(new Image(new FileInputStream("src/sample/PlantsVsZombies_Images/WallnutSeed.png"),156,82,false,false));
         ImageView potatoMineImg = new ImageView(new Image(new FileInputStream("src/sample/PlantsVsZombies_Images/PotatoMineSeed.png"),150,80,false,false));
+        ImageView normalZombieWalkingImg = new ImageView(new Image(new FileInputStream("src/sample/PlantsVsZombies_Images/normalZombieWalking.gif"),81,130,false,false));
+        ImageView coneheadZombieWalkingImg = new ImageView(new Image(new FileInputStream("src/sample/PlantsVsZombies_Images/coneheadZombieWalking.gif"),166,144,false,false));
+        ImageView footballZombieWalkingImg = new ImageView(new Image(new FileInputStream("src/sample/PlantsVsZombies_Images/footballZombieWalking.gif"),106,126,false,false));
+
 
 
         lawnMowerImg.setLayoutY(130);
@@ -219,6 +223,12 @@ public class Main extends Application {
         wallnutImg.setLayoutX(6);
         potatoMineImg.setLayoutY(370);
         potatoMineImg.setLayoutX(12);
+        normalZombieWalkingImg.setLayoutY(500);
+        normalZombieWalkingImg.setLayoutX(1000);
+        coneheadZombieWalkingImg.setLayoutY(320);
+        coneheadZombieWalkingImg.setLayoutX(1000);
+        footballZombieWalkingImg.setLayoutY(150);
+        footballZombieWalkingImg.setLayoutX(1000);
 
         level.getChildren().add(lawnMowerImg);
         level.getChildren().add(lawnMowerImg2);
@@ -230,6 +240,9 @@ public class Main extends Application {
         level.getChildren().add(cherryBombImg);
         level.getChildren().add(wallnutImg);
         level.getChildren().add(potatoMineImg);
+        level.getChildren().add(normalZombieWalkingImg);
+        level.getChildren().add(coneheadZombieWalkingImg);
+        level.getChildren().add(footballZombieWalkingImg);
 
         level.setBackground(new Background(LawnImage));
         primaryStage.setScene(new Scene(LoadingPane,1366,768));
