@@ -1,5 +1,3 @@
-package sample;
-
 import javafx.animation.*;
 import javafx.application.Application;
 import javafx.beans.value.ChangeListener;
@@ -69,7 +67,7 @@ class PeaShooter extends Plants {
 
     public PeaShooter(int pos[], backYard x) throws FileNotFoundException {
         Category[1] = "peashooter";
-        actorImage = new ImageView(new Image(new FileInputStream("src/sample/PlantsVsZombies_Images/peaShooter.gif"),120,120,false,false));
+        actorImage = new ImageView(new Image(new FileInputStream("PlantsVsZombies_Images/peaShooter.gif"),120,120,false,false));
         setupTimeLine();
         lawn = x;
         setLayout(actorImage,pos);
@@ -113,7 +111,7 @@ class bullet{
 
     public bullet(int[] pos){
         try{
-            bulletImage = new ImageView(new Image(new FileInputStream("src/sample/PlantsVsZombies_Images/pea.png"),24,20,false,false));
+            bulletImage = new ImageView(new Image(new FileInputStream("PlantsVsZombies_Images/pea.png"),24,20,false,false));
             bulletImage.setLayoutX(pos[0]+60);
             bulletImage.setLayoutY(pos[1]+40);
             move();
@@ -160,7 +158,7 @@ class NormalZombie extends Zombies{
             Category[1] = "NormalZombie";
             pos[0] = 1200;
             pos[1] = yCo;
-            actorImage = new ImageView(new Image(new FileInputStream("src/sample/PlantsVsZombies_Images/normalZombieWalking.gif"),61,150,false,false));
+            actorImage = new ImageView(new Image(new FileInputStream("PlantsVsZombies_Images/normalZombieWalking.gif"),61,150,false,false));
             speed = 50;
             setLayout(actorImage,pos[0],pos[1]);
             move();
@@ -201,21 +199,21 @@ class NormalZombie extends Zombies{
 class FlagZombie extends Zombies{
     public FlagZombie() throws FileNotFoundException{
         Category[1] = "FlagZombie";
-        actorImage = new ImageView(new Image(new FileInputStream("src/sample/PlantsVsZombies_Images/normalZombieWalking.gif"),81,130,false,false));
+        actorImage = new ImageView(new Image(new FileInputStream("PlantsVsZombies_Images/normalZombieWalking.gif"),81,130,false,false));
     }
 }
 
 class ConeHeadZombie extends Zombies{
     public ConeHeadZombie() throws  FileNotFoundException{
         Category[2] = "ConeHeadZombie";
-        actorImage = new ImageView(new Image(new FileInputStream("src/sample/PlantsVsZombies_Images/coneheadZombieWalking.gif"),81,130,false,false));
+        actorImage = new ImageView(new Image(new FileInputStream("PlantsVsZombies_Images/coneheadZombieWalking.gif"),81,130,false,false));
     }
 }
 
 class PoleVaultingZombie extends Zombies{
     public PoleVaultingZombie() throws FileNotFoundException{
         Category[3] = "PoleVaultingZombie";
-        actorImage = new ImageView(new Image(new FileInputStream("src/sample/PlantsVsZombies_Images/footballZombieWalking.gif"),81,130,false,false));
+        actorImage = new ImageView(new Image(new FileInputStream("PlantsVsZombies_Images/footballZombieWalking.gif"),81,130,false,false));
     }
 }
 
@@ -257,7 +255,7 @@ class backYard{
             this.level = level;
             String[] address;
             if (level<=2){
-                backYardImg = new Background(new BackgroundImage(new Image(new FileInputStream("src/sample/PlantsVsZombies_Images/Level1lawn.png")),BackgroundRepeat.NO_REPEAT,BackgroundRepeat.NO_REPEAT,BackgroundPosition.CENTER,new BackgroundSize(1366,768,false,false,false,false)));
+                backYardImg = new Background(new BackgroundImage(new Image(new FileInputStream("PlantsVsZombies_Images/Level1lawn.png")),BackgroundRepeat.NO_REPEAT,BackgroundRepeat.NO_REPEAT,BackgroundPosition.CENTER,new BackgroundSize(1366,768,false,false,false,false)));
                 lawnMowers.add(new LawnMower(new int[]{240,375}));
                 matrix = new generateMap(1);
                 if (level == 1)
@@ -265,13 +263,13 @@ class backYard{
                 else
                     address = new String[]{"PeashooterSeed.png","SunflowerSeed.png"};
             }else if (level == 3) {
-                backYardImg = new Background(new BackgroundImage(new Image(new FileInputStream("src/sample/PlantsVsZombies_Images/Level3lawn.png")), BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.CENTER, new BackgroundSize(1366, 768, false, false, false, false)));
+                backYardImg = new Background(new BackgroundImage(new Image(new FileInputStream("PlantsVsZombies_Images/Level3lawn.png")), BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.CENTER, new BackgroundSize(1366, 768, false, false, false, false)));
                 for(int i = 0;i<3;i++)
                     lawnMowers.add(new LawnMower(new int[]{240,260+i*130}));
                 matrix = new generateMap(3);
                 address = new String[]{"PeashooterSeed.png","SunflowerSeed.png","CherryBombSeed.png"};
             }else{
-                backYardImg = new Background(new BackgroundImage(new Image(new FileInputStream("src/sample/PlantsVsZombies_Images/Lawn.png")),BackgroundRepeat.NO_REPEAT,BackgroundRepeat.NO_REPEAT,BackgroundPosition.CENTER,new BackgroundSize(1366,768,false,false,false,false)));
+                backYardImg = new Background(new BackgroundImage(new Image(new FileInputStream("PlantsVsZombies_Images/Lawn.png")),BackgroundRepeat.NO_REPEAT,BackgroundRepeat.NO_REPEAT,BackgroundPosition.CENTER,new BackgroundSize(1366,768,false,false,false,false)));
                 for(int i = 1;i<6;i++)
                     lawnMowers.add(new LawnMower(new int[]{240,i*130}));
                 matrix = new generateMap(5);
@@ -307,12 +305,12 @@ class backYard{
     public Pane initBackyard() {
         try {
             backYard.setBackground(backYardImg);
-            ImageView timer = new ImageView(new Image(new FileInputStream("src/sample/PlantsVsZombies_Images/Timer.png"), 240, 30, false, false));
-            ImageView zombieIcon = new ImageView(new Image(new FileInputStream("src/sample/PlantsVsZombies_Images/zombieTimer.png"), 40, 40, false, false));
+            ImageView timer = new ImageView(new Image(new FileInputStream("PlantsVsZombies_Images/Timer.png"), 240, 30, false, false));
+            ImageView zombieIcon = new ImageView(new Image(new FileInputStream("PlantsVsZombies_Images/zombieTimer.png"), 40, 40, false, false));
             setLayout(timer,1000,740);
             setLayout(zombieIcon,1200,730);
             backYard.getChildren().addAll(timer,zombieIcon);
-            ImageView iconBar = new ImageView(new Image(new FileInputStream("src/sample/PlantsVsZombies_Images/iconBar.png"), 600, 100, false, false));
+            ImageView iconBar = new ImageView(new Image(new FileInputStream("PlantsVsZombies_Images/iconBar.png"), 600, 100, false, false));
             Label sunCountLabel = new Label();
             sunCountLabel.setText(sunCount + "");
             sunCountLabel.getStyleClass().addAll("textField_color", "textField_color_black");
@@ -368,7 +366,7 @@ class Icons{
     private ImageView iconImage;
 
     public Icons(String address,int size[]) throws FileNotFoundException{
-        iconImage = new ImageView(new Image(new FileInputStream("src/sample/PlantsVsZombies_Images/"+address),size[0],size[1],false,false));
+        iconImage = new ImageView(new Image(new FileInputStream("PlantsVsZombies_Images/"+address),size[0],size[1],false,false));
     }
 
     public ImageView getIconImage(int x){
@@ -388,8 +386,8 @@ class InGameMenu{
     public InGameMenu(backYard lawn){
         this.lawn = lawn;
         try{
-        menuButton.setBackground(new Background(new BackgroundImage(new Image(new FileInputStream("src/sample/PlantsVsZombies_Images/InGameMenuButton.png")),BackgroundRepeat.NO_REPEAT,BackgroundRepeat.NO_REPEAT,BackgroundPosition.DEFAULT,new BackgroundSize(131,41,false,false,false,false))));
-        backToMenu.setBackground(new Background(new BackgroundImage(new Image(new FileInputStream("src/sample/PlantsVsZombies_Images/mainMenuButton.png")),BackgroundRepeat.NO_REPEAT,BackgroundRepeat.NO_REPEAT,BackgroundPosition.DEFAULT,new BackgroundSize(225,38,false,false,false,false))));
+        menuButton.setBackground(new Background(new BackgroundImage(new Image(new FileInputStream("PlantsVsZombies_Images/InGameMenuButton.png")),BackgroundRepeat.NO_REPEAT,BackgroundRepeat.NO_REPEAT,BackgroundPosition.DEFAULT,new BackgroundSize(131,41,false,false,false,false))));
+        backToMenu.setBackground(new Background(new BackgroundImage(new Image(new FileInputStream("PlantsVsZombies_Images/mainMenuButton.png")),BackgroundRepeat.NO_REPEAT,BackgroundRepeat.NO_REPEAT,BackgroundPosition.DEFAULT,new BackgroundSize(225,38,false,false,false,false))));
         setLayout(backToMenu,612,362);
         backToMenu.setMinSize(215,38);
         setLayout(menuButton,1200,0);
@@ -421,7 +419,7 @@ class InGameMenu{
                     menuButton.setDisable(true);
                     lawn.setUpTime.pause();
                     lawn.pausePlay = true;
-                    pauseMenu = new ImageView(new Image(new FileInputStream("src/sample/PlantsVsZombies_Images/InGameMenu.png"),435,506,false,false));
+                    pauseMenu = new ImageView(new Image(new FileInputStream("PlantsVsZombies_Images/InGameMenu.png"),435,506,false,false));
                     setLayout(pauseMenu, 500,100);
                     lawn.getBackYard().getChildren().addAll(pauseMenu,backToMenu);
                 }catch (FileNotFoundException f){
@@ -444,7 +442,7 @@ class LawnMower{
     private int sunCount = 0;
 
     public LawnMower(int[] setPos) throws FileNotFoundException {
-        lawnMowerImg = new ImageView(new Image(new FileInputStream("src/sample/PlantsVsZombies_Images/Lawnmower.png"),125,90,false,false));
+        lawnMowerImg = new ImageView(new Image(new FileInputStream("PlantsVsZombies_Images/Lawnmower.png"),125,90,false,false));
         lawnMowerImg.setLayoutX(setPos[0]);
         lawnMowerImg.setLayoutY(setPos[1]);
     }
@@ -461,7 +459,7 @@ class Sun{
 
     public Sun() {
         try{
-        sunImage = new ImageView(new Image(new FileInputStream("src/sample/PlantsVsZombies_Images/sun.gif"),50,60,false,false));
+        sunImage = new ImageView(new Image(new FileInputStream("PlantsVsZombies_Images/sun.gif"),50,60,false,false));
         }
         catch (Exception e){
             System.out.println(e.getMessage());
@@ -498,7 +496,7 @@ public class Main extends Application {
         Scene NewUser = new Scene(NewUserPane,1366,768);
         primaryStage.setTitle("Plants Vs Zombies");
         Pane LoadingPane = new Pane();
-        Image main = new Image(new FileInputStream("src/sample/PlantsVsZombies_Images/MainBack.jpg"));
+        Image main = new Image(new FileInputStream("PlantsVsZombies_Images/MainBack.jpg"));
         BackgroundImage bgMain = new BackgroundImage(main, BackgroundRepeat.NO_REPEAT,BackgroundRepeat.NO_REPEAT, BackgroundPosition.DEFAULT,new BackgroundSize(1376,768.,false,false,false,false));
         LoadingPane.setBackground(new Background(bgMain));
 
@@ -508,16 +506,16 @@ public class Main extends Application {
         b.setLayoutY(678);
         b.setMinSize(410,63);
         b.setOpacity(0);
-        BackgroundImage bLoad = new BackgroundImage(new Image(new FileInputStream("src/sample/PlantsVsZombies_Images/LoadGame.png")),BackgroundRepeat.NO_REPEAT,BackgroundRepeat.NO_REPEAT,BackgroundPosition.CENTER,new BackgroundSize(418,58,false,false,false,false));
+        BackgroundImage bLoad = new BackgroundImage(new Image(new FileInputStream("PlantsVsZombies_Images/LoadGame.png")),BackgroundRepeat.NO_REPEAT,BackgroundRepeat.NO_REPEAT,BackgroundPosition.CENTER,new BackgroundSize(418,58,false,false,false,false));
         b.setBackground(new Background(bLoad));
         LoadingPane.getChildren().add(b);
-        Image hmpage = new Image(new FileInputStream("src/sample/PlantsVsZombies_Images/HomePage.png"));
+        Image hmpage = new Image(new FileInputStream("PlantsVsZombies_Images/HomePage.png"));
         BackgroundImage bgHm = new BackgroundImage(hmpage,BackgroundRepeat.NO_REPEAT,BackgroundRepeat.NO_REPEAT,BackgroundPosition.CENTER,new BackgroundSize(1376,768,false,false,false,false));
         HomePage.setBackground(new Background(bgHm));
         Button adventureB = new Button();
-        BackgroundImage aventb = new BackgroundImage(new Image(new FileInputStream("src/sample/PlantsVsZombies_Images/AdventureMode.png")),BackgroundRepeat.NO_REPEAT,BackgroundRepeat.NO_REPEAT,BackgroundPosition.CENTER,new BackgroundSize(555,155,false,false,false,false));
-        BackgroundImage aventb1 = new BackgroundImage(new Image(new FileInputStream("src/sample/PlantsVsZombies_Images/AdventureMode2.png")),BackgroundRepeat.NO_REPEAT,BackgroundRepeat.NO_REPEAT,BackgroundPosition.CENTER,new BackgroundSize(555,155,false,false,false,false));
-        BackgroundImage aventb2 = new BackgroundImage(new Image(new FileInputStream("src/sample/PlantsVsZombies_Images/AdventureMode3.png")),BackgroundRepeat.NO_REPEAT,BackgroundRepeat.NO_REPEAT,BackgroundPosition.CENTER,new BackgroundSize(555,155,false,false,false,false));
+        BackgroundImage aventb = new BackgroundImage(new Image(new FileInputStream("PlantsVsZombies_Images/AdventureMode.png")),BackgroundRepeat.NO_REPEAT,BackgroundRepeat.NO_REPEAT,BackgroundPosition.CENTER,new BackgroundSize(555,155,false,false,false,false));
+        BackgroundImage aventb1 = new BackgroundImage(new Image(new FileInputStream("PlantsVsZombies_Images/AdventureMode2.png")),BackgroundRepeat.NO_REPEAT,BackgroundRepeat.NO_REPEAT,BackgroundPosition.CENTER,new BackgroundSize(555,155,false,false,false,false));
+        BackgroundImage aventb2 = new BackgroundImage(new Image(new FileInputStream("PlantsVsZombies_Images/AdventureMode3.png")),BackgroundRepeat.NO_REPEAT,BackgroundRepeat.NO_REPEAT,BackgroundPosition.CENTER,new BackgroundSize(555,155,false,false,false,false));
         adventureB.setBackground(new Background(aventb));
         adventureB.setLayoutY(100);
         adventureB.setLayoutX(700);
@@ -533,13 +531,13 @@ public class Main extends Application {
         });
 
         //Adding New User
-        BackgroundImage NewUserBg = new BackgroundImage(new Image(new FileInputStream("src/sample/PlantsVsZombies_Images/NewUserbg.jpg")),BackgroundRepeat.NO_REPEAT,BackgroundRepeat.NO_REPEAT,BackgroundPosition.CENTER,new BackgroundSize(1366,768,false,false,false,false));
+        BackgroundImage NewUserBg = new BackgroundImage(new Image(new FileInputStream("PlantsVsZombies_Images/NewUserbg.jpg")),BackgroundRepeat.NO_REPEAT,BackgroundRepeat.NO_REPEAT,BackgroundPosition.CENTER,new BackgroundSize(1366,768,false,false,false,false));
         NewUserPane.setBackground(new Background(NewUserBg));
-        ImageView img = new ImageView(new Image(new FileInputStream("src/sample/PlantsVsZombies_Images/New_User.png")));
+        ImageView img = new ImageView(new Image(new FileInputStream("PlantsVsZombies_Images/New_User.png")));
         Button UserOk = new Button();
-        Image okbi = new Image(new FileInputStream("src/sample/PlantsVsZombies_Images/NewUserok.png"));
-        Image okb2 = new Image(new FileInputStream(("src/sample/PlantsVsZombies_Images/NewUserok2.png")));
-        Image okb3 = new Image(new FileInputStream(("src/sample/PlantsVsZombies_Images/NewUserok3.png")));
+        Image okbi = new Image(new FileInputStream("PlantsVsZombies_Images/NewUserok.png"));
+        Image okb2 = new Image(new FileInputStream(("PlantsVsZombies_Images/NewUserok2.png")));
+        Image okb3 = new Image(new FileInputStream(("PlantsVsZombies_Images/NewUserok3.png")));
         Background Userok1 =new Background(new BackgroundImage(okbi,BackgroundRepeat.NO_REPEAT,BackgroundRepeat.NO_REPEAT,BackgroundPosition.CENTER,BackgroundSize.DEFAULT));
         Background Userok2 =new Background(new BackgroundImage(okb2,BackgroundRepeat.NO_REPEAT,BackgroundRepeat.NO_REPEAT,BackgroundPosition.CENTER,BackgroundSize.DEFAULT));
         Background Userok3 =new Background(new BackgroundImage(okb3,BackgroundRepeat.NO_REPEAT,BackgroundRepeat.NO_REPEAT,BackgroundPosition.CENTER,BackgroundSize.DEFAULT));
@@ -569,9 +567,9 @@ public class Main extends Application {
         NewUserPane.getStylesheets().add("/sample/CSSButtonShape.CSS");
 
         //Main HomePage\
-        BackgroundImage miniB1 = new BackgroundImage(new Image(new FileInputStream("src/sample/PlantsVsZombies_Images/miniGames1.png")),BackgroundRepeat.NO_REPEAT,BackgroundRepeat.NO_REPEAT,BackgroundPosition.CENTER,new BackgroundSize(537,120,false,false,false,false));
-        BackgroundImage miniB2 = new BackgroundImage(new Image(new FileInputStream("src/sample/PlantsVsZombies_Images/miniGames2.png")),BackgroundRepeat.NO_REPEAT,BackgroundRepeat.NO_REPEAT,BackgroundPosition.CENTER,new BackgroundSize(537,120,false,false,false,false));
-        BackgroundImage miniB3 = new BackgroundImage(new Image(new FileInputStream("src/sample/PlantsVsZombies_Images/miniGames3.png")),BackgroundRepeat.NO_REPEAT,BackgroundRepeat.NO_REPEAT,BackgroundPosition.CENTER,new BackgroundSize(537,120,false,false,false,false));
+        BackgroundImage miniB1 = new BackgroundImage(new Image(new FileInputStream("PlantsVsZombies_Images/miniGames1.png")),BackgroundRepeat.NO_REPEAT,BackgroundRepeat.NO_REPEAT,BackgroundPosition.CENTER,new BackgroundSize(537,120,false,false,false,false));
+        BackgroundImage miniB2 = new BackgroundImage(new Image(new FileInputStream("PlantsVsZombies_Images/miniGames2.png")),BackgroundRepeat.NO_REPEAT,BackgroundRepeat.NO_REPEAT,BackgroundPosition.CENTER,new BackgroundSize(537,120,false,false,false,false));
+        BackgroundImage miniB3 = new BackgroundImage(new Image(new FileInputStream("PlantsVsZombies_Images/miniGames3.png")),BackgroundRepeat.NO_REPEAT,BackgroundRepeat.NO_REPEAT,BackgroundPosition.CENTER,new BackgroundSize(537,120,false,false,false,false));
         Button miniGameB = new Button();
         miniGameB.setMinSize(540,120);
         miniGameB.setRotate(6);
