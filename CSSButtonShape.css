@@ -13,11 +13,15 @@
     -fx-font-size: 20px;
 }
 
+.textField_color_black{
+    -fx-text-fill: #000000;
+}
+
 .textField_colorLevel{
     -fx-background-color: transparent;
     -fx-border-color: transparent;
     -fx-text-fill: #ffffff;
     -fx-font-family: "Times New Roman",sans-serif;
-    -fx-font-size: 25px;
+    -fx-font-size: 20px;
     -fx-font-weight: bolder;
 }
