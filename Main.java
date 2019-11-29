@@ -934,6 +934,7 @@ public class Main extends Application {
         levelScreen = new Level();
         Scene levelScene = new Scene (levelScreen.getLevel(),1366,768);
 
+
 //        Text text = new Text();
 //        text.setFont(Font.font("verdana", FontWeight.BOLD, FontPosture.REGULAR, 50));
 //        text.setX(500);
