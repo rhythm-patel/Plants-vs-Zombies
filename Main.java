@@ -672,7 +672,7 @@ class backYard{
             for (Icons i : availableIcon) {
                 backYard.getChildren().add(i.getIconImage(j));
                 j++;
-                backYard.getStylesheets().add("/sample/CSSButtonShape.CSS");
+                backYard.getStylesheets().add("/CSSButtonShape.CSS");
             }
         } catch (Exception e) {
             System.out.println(e.getMessage());
@@ -1148,6 +1148,8 @@ public class Main extends Application {
     private String UserName;
     private backYard mainLawn;
     private Level levelScreen;
+    public static ArrayList<User> users = new ArrayList<>();
+
     @Override
     public void start(Stage primaryStage) throws Exception{
         Pane HomePage = new Pane();
@@ -1229,7 +1231,7 @@ public class Main extends Application {
         NewUserPane.getChildren().add(img);
         NewUserPane.getChildren().add(UserNameTf);
         NewUserPane.getChildren().add(UserOk);
-        NewUserPane.getStylesheets().add("/sample/CSSButtonShape.CSS");
+        NewUserPane.getStylesheets().add("/CSSButtonShape.CSS");
 
         //Main HomePage\
         BackgroundImage miniB1 = new BackgroundImage(new Image(new FileInputStream("PlantsVsZombies_Images/miniGames1.png")),BackgroundRepeat.NO_REPEAT,BackgroundRepeat.NO_REPEAT,BackgroundPosition.CENTER,new BackgroundSize(537,120,false,false,false,false));
