@@ -1,0 +1,16 @@
+<component name="libraryTable">
+  <library name="javafx13">
+    <CLASSES>
+      <root url="file:///Library/Java/JavaVirtualMachines/javafx-sdk-13/lib" />
+    </CLASSES>
+    <JAVADOC />
+    <NATIVE>
+      <root url="file:///Library/Java/JavaVirtualMachines/javafx-sdk-13/lib" />
+    </NATIVE>
+    <SOURCES>
+      <root url="file:///Library/Java/JavaVirtualMachines/javafx-sdk-13/lib" />
+    </SOURCES>
+    <jarDirectory url="file:///Library/Java/JavaVirtualMachines/javafx-sdk-13/lib" recursive="false" />
+    <jarDirectory url="file:///Library/Java/JavaVirtualMachines/javafx-sdk-13/lib" recursive="false" type="SOURCES" />
+  </library>
+</component>
