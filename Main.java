@@ -386,6 +386,7 @@ class FootballZombie extends Zombies{
 }
 
 class generateMap{
+
     private int[] firstRowX;
     private int[] firstColY;
     private int[] key;
