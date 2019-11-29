@@ -1,37 +1,25 @@
+package sample;
 import javafx.animation.*;
 import javafx.application.Application;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.geometry.Pos;
-import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.effect.Glow;
-import javafx.scene.effect.Light;
-import javafx.scene.effect.Lighting;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
-import javafx.scene.paint.Color;
-import javafx.scene.text.Font;
-import javafx.scene.text.FontPosture;
-import javafx.scene.text.FontWeight;
-import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.util.Duration;
-
 import javafx.event.EventHandler;
 import javafx.event.ActionEvent;
-
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-
 import java.util.*;
-
-interface cloneable{}
 
 abstract class Actor{
     protected double Health;
@@ -58,14 +46,20 @@ abstract class Actor{
     public Timeline getSetUpTime() {
         return setUpTime;
     }
+
+    public void setHealth(double v) {
+        this.Health -= v;
+    }
+
+    abstract public void attack();
 }
 
-class Plants extends Actor implements cloneable {
+class Plants extends Actor implements Cloneable {
     protected long lastActTime = 0;
     protected int key;
     protected double translatePos[];
     protected backYard lawn;
-
+    volatile protected ArrayList<Zombies> zombieAttack = new ArrayList<Zombies>();
     public Plants(){
         Category[0] = "plants";
     }
@@ -82,7 +76,28 @@ class Plants extends Actor implements cloneable {
     }
 
     @Override
-    public void act() {}
+    public void act() {
+        if(Health<=0){
+            lawn.getBackYard().getChildren().remove(this.actorImage);
+            lawn.mapOfPlants.get(key).remove(this);
+            for(Zombies e:zombieAttack){
+                e.AttackStart = false;
+                e.nextPlant = null;
+            }
+            this.setUpTime.stop();
+        }
+
+    }
+
+    public ArrayList<Zombies> getZombieAttack(){
+        return zombieAttack;
+    }
+
+    public void setZombieAttack(Zombies x){
+        zombieAttack.add(x);
+    }
+    @Override
+    public void attack(){}
 
     public void setupTimeLine(){
         KeyFrame newKey = new KeyFrame(Duration.millis(speed), new TimeHandler());
@@ -105,6 +120,7 @@ class Plants extends Actor implements cloneable {
     public void setKey(int k){
         key = k;
     }
+
 }
 
 class PeaShooter extends Plants {
@@ -113,31 +129,34 @@ class PeaShooter extends Plants {
     public PeaShooter( backYard x) throws FileNotFoundException {
         Health = 300;
         Attackpow = 20;
+        speed = 100;
         Category[1] = "peashooter";
-        actorImage = new ImageView(new Image(new FileInputStream("PlantsVsZombies_Images/peaShooter.gif"),120,120,false,false));
+        actorImage = new ImageView(new Image(new FileInputStream("src/sample/PlantsVsZombies_Images/peaShooter.gif"),120,120,false,false));
         lawn = x;
         translatePos = new double[]{-10,-10};
     }
 
     @Override
     public void act(){
+        super.act();
         long time = System.currentTimeMillis();
-        if(!lawn.pausePlay && time>lastActTime+5000){
-            bullet newBullet = new bullet(pos);
-            if(b.size() == 0 || b.get(0).bulletImage.getX()>1365)
+        if(!lawn.pausePlay && time>lastActTime+4000){
+            bullet newBullet = new bullet(pos,lawn,key);
+            if(b.size() == 0 || b.get(0).getX()>1365)
                 b.add(0,newBullet);
-            else if(b.size() == 1 || b.get(1).bulletImage.getX()>1365)
+            else if(b.size() == 1 || b.get(1).getX()>1365)
                 b.add(1,newBullet);
             if(b.contains(newBullet)){
                 lawn.getBackYard().getChildren().add(newBullet.bulletImage);
                 lastActTime = time;
             }
         }
-        for (bullet n:b)
+        for (bullet n:b){
             if(lawn.pausePlay)
                 n.setUpTime.pause();
             else
                 n.setUpTime.play();
+        }
     }
 
     @Override
@@ -155,12 +174,21 @@ class PeaShooter extends Plants {
 class bullet{
     ImageView bulletImage;
     private double speed = 0.003;
+    private double initPoint;
     Timeline setUpTime;
+    private backYard lawn;
+    private int attackPow = 20;
+    private int key;
+    private ArrayList<Zombies> rowZombie;
 
-    public bullet(double[] pos){
+    public bullet(double[] pos, backYard pane, int key){
         try{
-            bulletImage = new ImageView(new Image(new FileInputStream("PlantsVsZombies_Images/pea.png"),24,20,false,false));
+            lawn = pane;
+            this.key = key;
+            rowZombie = lawn.mapOfZombies.get(key);
+            bulletImage = new ImageView(new Image(new FileInputStream("src/sample/PlantsVsZombies_Images/pea.png"),24,20,false,false));
             bulletImage.setLayoutX(pos[0]+81);
+            initPoint = pos[0]+51;
             bulletImage.setLayoutY(pos[1]+40);
             moveBullet();
         }catch (Exception e){
@@ -168,6 +196,30 @@ class bullet{
         }
     }
 
+    public void attack(){
+        Zombies nearestZombie = new Zombies(1,3,lawn,2);
+        if(rowZombie != null)
+            for(Zombies z:rowZombie){
+                if(z.getPosX() < nearestZombie.getPosX() && z.getPosX()>initPoint)
+                    nearestZombie = z;
+            }
+        else
+            return;
+        if (nearestZombie == null) {
+            return;
+        }
+
+        if(Math.abs(getX()-nearestZombie.getPosX()) == 2){
+            nearestZombie.setHealth(attackPow);
+            lawn.getBackYard().getChildren().remove(this);
+            bulletImage.setLayoutX(1367);
+            setUpTime.stop();
+        }
+    }
+
+    public double getX(){
+        return this.bulletImage.getLayoutX();
+    }
     public void moveBullet(){
         KeyFrame newKey = new KeyFrame(Duration.millis(speed*1000), new TimeHandler());
         setUpTime = new Timeline(newKey);
@@ -177,7 +229,10 @@ class bullet{
 
     private class TimeHandler implements EventHandler<ActionEvent>{
         public void handle(ActionEvent event){
-            bulletImage.setX(bulletImage.getX()+1);
+            attack();
+            bulletImage.setLayoutX(bulletImage.getLayoutX()+1);
+            if(getX()>1365)
+                setUpTime.stop();
         }
     }
 }
@@ -190,7 +245,7 @@ class CherryBomb extends Plants{
         Category[1] = "cherrybomb";
         Health = 300;
         Attackpow = 1800;
-        actorImage = new ImageView(new Image(new FileInputStream("PlantsVsZombies_Images/cherryBomb.png"),118,99,false,false));
+        actorImage = new ImageView(new Image(new FileInputStream("src/sample/PlantsVsZombies_Images/cherryBomb.png"),118,99,false,false));
         lawn = x;
         this.speed = 45;
         translatePos = new double[]{-10,20};
@@ -201,6 +256,7 @@ class CherryBomb extends Plants{
 
     @Override
     public void act(){
+        super.act();
         long time = System.currentTimeMillis();
         if(time-lastActTime>45)
             try{
@@ -211,7 +267,7 @@ class CherryBomb extends Plants{
                 }
                 int size1 = 120+3*x;
                 int size2 = 100+3*x;
-                actorImage.setImage(new Image(new FileInputStream("PlantsVsZombies_Images/CherryBomb ("+x+").gif"),size1,size2,false,false));
+                actorImage.setImage(new Image(new FileInputStream("src/sample/PlantsVsZombies_Images/CherryBomb ("+x+").gif"),size1,size2,false,false));
                 actorImage.setLayoutY(actorImage.getLayoutY()-1);
                 actorImage.setLayoutX(actorImage.getLayoutX()-1);
                 x++;
@@ -233,17 +289,17 @@ class SunFlower extends Plants{
         try{
             Health = 300;
             Category[1] = "sunFlower";
-            System.out.println("hhh");
-            actorImage = new ImageView(new Image(new FileInputStream("PlantsVsZombies_Images/SunFlower.gif"),70,90,false,false));
+            actorImage = new ImageView(new Image(new FileInputStream("src/sample/PlantsVsZombies_Images/SunFlower.gif"),70,90,false,false));
             lawn = x;
             translatePos = new double[]{10,20};
         }catch (Exception e){
             System.out.println(e.getMessage());
         }
     }
-
+    
     @Override
     public void act() {
+        super.act();
         long time = System.currentTimeMillis();
         if(time - lastActTime > 9000){
             Sun s = new Sun(lawn,new double[]{actorImage.getLayoutX()+40,actorImage.getLayoutY()+25},true);
@@ -266,7 +322,7 @@ class WallNut extends Plants{
             Category[1] = "Wallnut";
             Health = 4000;
             Attackpow = 0;
-            actorImage = new ImageView(new Image(new FileInputStream("PlantsVsZombies_Images/walnutFull.gif"),70,90,false,false));
+            actorImage = new ImageView(new Image(new FileInputStream("src/sample/PlantsVsZombies_Images/walnutFull.gif"),70,90,false,false));
             lawn = x;
             translatePos = new double[]{10,20};
         }catch (Exception e){
@@ -291,24 +347,70 @@ class Zombies extends Actor{
     protected double speed;
     protected backYard lawn;
     protected LawnMower rowLawnMower;
+    protected int relocatedY;
+    protected int key;
+    volatile protected boolean AttackStart = false;
+    volatile protected Plants nextPlant = null;
 
-    public Zombies(int posy,int key,backYard l){
+    public Zombies(int posy,int key,backYard l,int ry){
         Category[0] = "Zombies";
         lawn = l;
-        this.pos = new double[]{1300,posy};
+        relocatedY = ry;
+        this.pos = new double[]{1366,posy-relocatedY};
+        if(l.getLevel() <= 2)
+            key = key - 2;
+        else if(l.getLevel() == 3)
+            key = key - 1;
         rowLawnMower = lawn.getLawnMowers().get(key-1);
+        this.key = (l.getMatrix().getKey()[key-1]);
     }
 
-    public void setLayout(Node e,double x,double y){
-        e.setLayoutY(y);
-        e.setLayoutX(x);
+    public void findPlants(){
+        ArrayList<Plants> rowPlants = lawn.mapOfPlants.get(key);
+        if(rowPlants != null)
+            for(Plants x: rowPlants)
+                if(x.pos[0]+100>this.getPosX() && x.pos[0]<this.getPosX()){
+                    nextPlant = x;
+                    nextPlant.setZombieAttack(this);
+                    AttackStart = true;
+                    break;
+                }
+    }
+    @Override
+    public void attack(){
+        nextPlant.setHealth(Attackpow);
+    }
+
+    public void setLayout(){
+        this.actorImage.setLayoutY(pos[1]);
+        this.actorImage.setLayoutX(pos[0]);
+    }
+
+    public double getPosX(){
+        return pos[0];
     }
 
     @Override
     public void act() {
+        if(Health <= 0)
+            Dead();
         if(this.pos[0] < 295 && !rowLawnMower.isActive()){
             rowLawnMower.setActive(true);
         }
+        if(!AttackStart) {
+            findPlants();
+            actorImage.setLayoutX(actorImage.getLayoutX()-1);
+            this.pos[0] = actorImage.getLayoutX();
+        }
+        else if(AttackStart)
+            attack();
+    }
+
+    public void Dead(){
+        lawn.getBackYard().getChildren().remove(actorImage);
+        lawn.mapOfZombies.get(key).remove(this);
+        nextPlant.zombieAttack.remove(this);
+        setUpTime.stop();
     }
 
     protected void setupTimeLine(double speed){
@@ -317,6 +419,7 @@ class Zombies extends Actor{
         setUpTime.setCycleCount(Timeline.INDEFINITE);
         setUpTime.play();
     }
+
 
     private class TimeHandler implements EventHandler<ActionEvent>{
         public void handle(ActionEvent event){
@@ -329,32 +432,32 @@ class Zombies extends Actor{
 class NormalZombie extends Zombies{
 
     public NormalZombie(int posy, int key, backYard x){
-        super(posy,key,x);
+        super(posy,key,x,25);
         try{
             Category[1] = "NormalZombie";
-            actorImage = new ImageView(new Image(new FileInputStream("PlantsVsZombies_Images/normalZombieWalking.gif"),61,150,false,false));
+            Health = 200;
+            actorImage = new ImageView(new Image(new FileInputStream("src/sample/PlantsVsZombies_Images/normalZombieWalking.gif"),55,140,false,false));
             speed = 0.05;
-            setLayout(actorImage,pos[0],pos[1]);
+            Attackpow = 2;
+            this.setLayout();
             setupTimeLine(speed);
         } catch (FileNotFoundException f) {
             System.out.println(f.getMessage());
         }
     }
 
-    @Override
-    public void act(){
-        super.act();
-        actorImage.setLayoutX(actorImage.getLayoutX()-1);
-        this.pos[0] = actorImage.getLayoutX();
-    }
 }
 
 class FlagZombie extends Zombies{
     public FlagZombie(int posy,int key,backYard x) {
-        super(posy,key,x);
+        super(posy,key,x,7);
         try {
+            Health = 200;
             Category[1] = "FlagZombie";
-            actorImage = new ImageView(new Image(new FileInputStream("PlantsVsZombies_Images/normalZombieWalking.gif"),81,130,false,false));
+            Attackpow = 2;
+            speed = 0.05;
+            actorImage = new ImageView(new Image(new FileInputStream("src/sample/PlantsVsZombies_Images/normalZombieWalking.gif"),61,150,false,false));
+            this.setLayout();
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
@@ -363,10 +466,15 @@ class FlagZombie extends Zombies{
 
 class ConeHeadZombie extends Zombies{
     public ConeHeadZombie(int posy,int key,backYard x){
-        super(posy,key,x);
+        super(posy,key,x,25);
         try {
-            Category[2] = "ConeHeadZombie";
-            actorImage = new ImageView(new Image(new FileInputStream("PlantsVsZombies_Images/coneheadZombieWalking.gif"),81,130,false,false));
+            Category[1] = "ConeHeadZombie";
+            actorImage = new ImageView(new Image(new FileInputStream("src/sample/PlantsVsZombies_Images/coneheadZombieWalking.gif"),109,155,false,false));
+            speed = 0.05;
+            Attackpow = 2;
+            Health = 360;
+            this.setLayout();
+            setupTimeLine(speed);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
@@ -375,10 +483,15 @@ class ConeHeadZombie extends Zombies{
 
 class FootballZombie extends Zombies{
     public FootballZombie(int posy,int key, backYard x){
-        super(posy,key,x);
+        super(posy,key,x,10);
         try {
-            Category[3] = "FootballZombie";
-            actorImage = new ImageView(new Image(new FileInputStream("PlantsVsZombies_Images/footballZombieWalking.gif"),81,130,false,false));
+            Category[1] = "FootballZombie";
+            actorImage = new ImageView(new Image(new FileInputStream("src/sample/PlantsVsZombies_Images/footballZombieWalking.gif"),61,150,false,false));
+            setLayout();
+            Health = 400;
+            speed = 0.0375;
+            Attackpow = 3;
+            setupTimeLine(speed);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         }
@@ -386,7 +499,6 @@ class FootballZombie extends Zombies{
 }
 
 class generateMap{
-
     private int[] firstRowX;
     private int[] firstColY;
     private int[] key;
@@ -433,8 +545,8 @@ class generateMap{
 
 class backYard{
     private generateMap matrix;
-
-    private ArrayList<LawnMower> lawnMowers = new ArrayList<LawnMower>();
+    private long lastZombieAdded;
+    volatile private ArrayList<LawnMower> lawnMowers = new ArrayList<LawnMower>();
     private Background backYardImg;
     private ArrayList<Icons> availableIcon = new ArrayList<Icons>();
     private int level;
@@ -444,11 +556,13 @@ class backYard{
     private int sunCount = 150;
     protected Timeline setUpTime;
     protected boolean pausePlay = false;
-    HashMap<Integer,ArrayList<Plants>> mapOfPlants = new HashMap<Integer, ArrayList<Plants>>();
-    HashMap<Integer,ArrayList<Zombies>> mapOfZombies = new HashMap<>();
+    volatile HashMap<Integer,ArrayList<Plants>> mapOfPlants = new HashMap<Integer, ArrayList<Plants>>();
+    volatile HashMap<Integer,ArrayList<Zombies>> mapOfZombies = new HashMap<>();
     private int nosOfWavesGenerated = 0;
     Stage ps;
     Scene hp;
+    private int nosOfZombies[] = new int[3];
+
     public backYard(int level, Scene x, Stage y){
         try{
             ps = y;
@@ -457,7 +571,7 @@ class backYard{
             this.level = level;
             String[] address;
             if (level<=2){
-                backYardImg = new Background(new BackgroundImage(new Image(new FileInputStream("PlantsVsZombies_Images/Level1lawn.png")),BackgroundRepeat.NO_REPEAT,BackgroundRepeat.NO_REPEAT,BackgroundPosition.CENTER,new BackgroundSize(1366,768,false,false,false,false)));
+                backYardImg = new Background(new BackgroundImage(new Image(new FileInputStream("src/sample/PlantsVsZombies_Images/Level1lawn.png")),BackgroundRepeat.NO_REPEAT,BackgroundRepeat.NO_REPEAT,BackgroundPosition.CENTER,new BackgroundSize(1366,768,false,false,false,false)));
                 lawnMowers.add(new LawnMower(new int[]{240,375},2,this));
                 matrix = new generateMap(1);
                 if (level == 1)
@@ -465,13 +579,13 @@ class backYard{
                 else
                     address = new String[]{"PeashooterSeed.png","SunflowerSeed.png"};
             }else if (level == 3) {
-                backYardImg = new Background(new BackgroundImage(new Image(new FileInputStream("PlantsVsZombies_Images/Level3lawn.png")), BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.CENTER, new BackgroundSize(1366, 768, false, false, false, false)));
+                backYardImg = new Background(new BackgroundImage(new Image(new FileInputStream("src/sample/PlantsVsZombies_Images/Level3lawn.png")), BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.CENTER, new BackgroundSize(1366, 768, false, false, false, false)));
                 for(int i = 0;i<3;i++)
                     lawnMowers.add(new LawnMower(new int[]{240,260+i*130},i+2,this));
                 matrix = new generateMap(3);
                 address = new String[]{"PeashooterSeed.png","SunflowerSeed.png","CherryBombSeed.png"};
             }else{
-                backYardImg = new Background(new BackgroundImage(new Image(new FileInputStream("PlantsVsZombies_Images/Lawn.png")),BackgroundRepeat.NO_REPEAT,BackgroundRepeat.NO_REPEAT,BackgroundPosition.CENTER,new BackgroundSize(1366,768,false,false,false,false)));
+                backYardImg = new Background(new BackgroundImage(new Image(new FileInputStream("src/sample/PlantsVsZombies_Images/Lawn.png")),BackgroundRepeat.NO_REPEAT,BackgroundRepeat.NO_REPEAT,BackgroundPosition.CENTER,new BackgroundSize(1366,768,false,false,false,false)));
                 for(int i = 1;i<6;i++)
                     lawnMowers.add(new LawnMower(new int[]{240,i*130},i-1,this));
                 matrix = new generateMap(5);
@@ -485,6 +599,7 @@ class backYard{
             initBackyard();
             sunCountLabel.getStyleClass().addAll("textField_color", "textField_color_black");
             setLayout(sunCountLabel, 48, 65);
+            nosOfZombies = new int[]{1+2*level,2+2*level,4+2*level};
         } catch (Exception e){
             System.out.println(e.getMessage());
         }
@@ -500,59 +615,54 @@ class backYard{
 
     public void play(){
         this.setupTimeLine();
+        lastAdded = System.currentTimeMillis();
+        lastZombieAdded = lastAdded;
     }
 
-    public void GenrateWave(){
+    public Zombies addZombie(){
         Random zombieGenerator = new Random();
-        int nosOfZombies;
-        if(nosOfWavesGenerated == 0)
-            nosOfZombies = 1+2*level;
-        else if(nosOfWavesGenerated == 1)
-            nosOfZombies = 2+2*level;
-        else
-            nosOfZombies = 4+2*level;
-        nosOfWavesGenerated++;
-        for(int i = 0;i<nosOfZombies;i++){
-            Zombies newZ;
-            int key = 0;
-            if(level <= 2)
-                newZ = new NormalZombie(matrix.getFirstColY()[0],matrix.getKey()[key],this);
-            else if(level == 3){
-                int zc = zombieGenerator.nextInt(2);
-                key = zombieGenerator.nextInt(3);
-                if(zc == 0)
-                    newZ = new NormalZombie(matrix.getFirstColY()[key],matrix.getKey()[key],this);
-                else
-                    newZ = new ConeHeadZombie(matrix.getFirstColY()[key],matrix.getKey()[key],this);
-            }else{
-                key = zombieGenerator.nextInt(5);
-                int zc = zombieGenerator.nextInt(4);
-                if(zc == 0)
-                    newZ = new NormalZombie(matrix.getFirstColY()[key],matrix.getKey()[key],this);
-                else if(zc<=2)
-                    newZ = new ConeHeadZombie(matrix.getFirstColY()[key],matrix.getKey()[key],this);
-                else
-                    newZ = new FootballZombie(matrix.getKey()[key],matrix.getKey()[key],this);
-            }
-            ArrayList<Zombies> z;
-            if(!mapOfZombies.containsKey(key))
-                z = new ArrayList<Zombies>();
+        Zombies newZ;
+        int key = 0;
+        if(level <= 2)
+            newZ = new NormalZombie(matrix.getFirstColY()[0],matrix.getKey()[key],this);
+        else if(level == 3){
+            int zc = zombieGenerator.nextInt(2);
+            key = zombieGenerator.nextInt(3);
+            if(zc == 0)
+                newZ = new NormalZombie(matrix.getFirstColY()[key],matrix.getKey()[key],this);
             else
-                z = mapOfZombies.get(key);
-            z.add(newZ);
-            mapOfZombies.put(matrix.getKey()[key],z);
+                newZ = new ConeHeadZombie(matrix.getFirstColY()[key],matrix.getKey()[key],this);
+        }else{
+            key = zombieGenerator.nextInt(5);
+            int zc = zombieGenerator.nextInt(4);
+            if(zc == 0)
+                newZ = new NormalZombie(matrix.getFirstColY()[key],matrix.getKey()[key],this);
+            else if(zc<=2)
+                newZ = new ConeHeadZombie(matrix.getFirstColY()[key],matrix.getKey()[key],this);
+            else
+                newZ = new FootballZombie(matrix.getKey()[key],matrix.getKey()[key],this);
         }
+        key = matrix.getKey()[key];
+        ArrayList<Zombies> z;
+        if(!mapOfZombies.containsKey(key))
+            z = new ArrayList<Zombies>();
+        else{
+            z = mapOfZombies.get(key);
+        }
+        z.add(newZ);
+        mapOfZombies.put(key,z);
+        return newZ;
     }
 
     public Pane initBackyard() {
         try {
             backYard.setBackground(backYardImg);
-            ImageView timer = new ImageView(new Image(new FileInputStream("PlantsVsZombies_Images/Timer.png"), 240, 30, false, false));
-            ImageView zombieIcon = new ImageView(new Image(new FileInputStream("PlantsVsZombies_Images/zombieTimer.png"), 40, 40, false, false));
+            ImageView timer = new ImageView(new Image(new FileInputStream("src/sample/PlantsVsZombies_Images/Timer.png"), 240, 30, false, false));
+            ImageView zombieIcon = new ImageView(new Image(new FileInputStream("src/sample/PlantsVsZombies_Images/zombieTimer.png"), 40, 40, false, false));
             setLayout(timer,1000,740);
             setLayout(zombieIcon,1200,730);
             backYard.getChildren().addAll(timer,zombieIcon);
-            ImageView iconBar = new ImageView(new Image(new FileInputStream("PlantsVsZombies_Images/iconBar.png"), 600, 100, false, false));
+            ImageView iconBar = new ImageView(new Image(new FileInputStream("src/sample/PlantsVsZombies_Images/iconBar.png"), 600, 100, false, false));
             setLayout(sunCountLabel, 48, 65);
             setLayout(iconBar, 10, 0);
             InGameMenu menuButton = new InGameMenu(this);
@@ -563,7 +673,7 @@ class backYard{
             for (Icons i : availableIcon) {
                 backYard.getChildren().add(i.getIconImage(j));
                 j++;
-                backYard.getStylesheets().add("CSSButtonShape.CSS");
+                backYard.getStylesheets().add("/sample/CSSButtonShape.CSS");
             }
         } catch (Exception e) {
             System.out.println(e.getMessage());
@@ -597,12 +707,29 @@ class backYard{
         return matrix;
     }
 
+    public void generateWave(int i){
+        nosOfZombies[i]-=1;
+        Zombies newz = addZombie();
+        backYard.getChildren().add(newz.actorImage);
+        if(nosOfZombies[i] == 0)
+            nosOfWavesGenerated++;
+    }
+
     public void act() {
         long curTime = System.currentTimeMillis();
         sunCountLabel.setText(sunCount+"");
-        if(curTime>=lastAdded + 20000){
+        if(curTime>=lastAdded + 20000) {
             lastAdded = curTime;
             sunFallDrop();
+        }
+        Random time = new Random();
+        if(curTime >= lastZombieAdded + (time.nextInt(20)+4)*1000){
+            for(int i = 0;i<3;i++)
+                if(nosOfZombies[i]>0){
+                    generateWave(i);
+                    break;
+                }
+            lastZombieAdded = curTime;
         }
     }
 
@@ -661,16 +788,18 @@ class Icons extends Button{
             type = new CherryBomb(x);
             translatePos = type.translatePos;
         }
-        iconImage = new Image(new FileInputStream("PlantsVsZombies_Images/"+address));
+        iconImage = new Image(new FileInputStream("src/sample/PlantsVsZombies_Images/"+address));
         this.setMinSize(size[0],size[1]);
         this.setBackground(new Background(new BackgroundImage(iconImage,BackgroundRepeat.NO_REPEAT,BackgroundRepeat.NO_REPEAT,BackgroundPosition.CENTER,new BackgroundSize(size[0],size[1],false,false,false,false))));
         this.setOnMouseEntered(e->{
-            Light.Spot light = new Light.Spot();
-            light.setX(this.getLayoutX()+40);
-            light.setY(this.getLayoutY()+30);
-            light.setZ(100);
-            Lighting actlight = new Lighting();
-            this.setEffect(actlight);
+            Glow g = new Glow();
+//            Light.Spot light = new Light.Spot();
+//            light.setX(this.getLayoutX()+40);
+//            light.setY(this.getLayoutY()+30);
+//            light.setZ(100);
+//            Lighting actlight = new Lighting();
+            g.setLevel(0.2);
+            this.setEffect(g);
         });
         this.setOnMouseExited(e->{
             Glow g = new Glow();
@@ -720,7 +849,6 @@ class Icons extends Button{
                 addPlants.add(copy);
                 lawn.mapOfPlants.put(key,addPlants);
                 copy.setKey(key);
-                System.out.println(key);
                 copy.start();
             }else{
                 lawn.getBackYard().getChildren().remove(copy.actorImage);
@@ -745,8 +873,8 @@ class InGameMenu{
     public InGameMenu(backYard lawn){
         this.lawn = lawn;
         try{
-            menuButton.setBackground(new Background(new BackgroundImage(new Image(new FileInputStream("PlantsVsZombies_Images/InGameMenuButton.png")),BackgroundRepeat.NO_REPEAT,BackgroundRepeat.NO_REPEAT,BackgroundPosition.DEFAULT,new BackgroundSize(131,41,false,false,false,false))));
-            backToMenu.setBackground(new Background(new BackgroundImage(new Image(new FileInputStream("PlantsVsZombies_Images/mainMenuButton.png")),BackgroundRepeat.NO_REPEAT,BackgroundRepeat.NO_REPEAT,BackgroundPosition.DEFAULT,new BackgroundSize(225,38,false,false,false,false))));
+            menuButton.setBackground(new Background(new BackgroundImage(new Image(new FileInputStream("src/sample/PlantsVsZombies_Images/InGameMenuButton.png")),BackgroundRepeat.NO_REPEAT,BackgroundRepeat.NO_REPEAT,BackgroundPosition.DEFAULT,new BackgroundSize(131,41,false,false,false,false))));
+            backToMenu.setBackground(new Background(new BackgroundImage(new Image(new FileInputStream("src/sample/PlantsVsZombies_Images/mainMenuButton.png")),BackgroundRepeat.NO_REPEAT,BackgroundRepeat.NO_REPEAT,BackgroundPosition.DEFAULT,new BackgroundSize(225,38,false,false,false,false))));
             setLayout(backToMenu,612,362);
             backToMenu.setMinSize(215,38);
             setLayout(menuButton,1200,0);
@@ -778,7 +906,7 @@ class InGameMenu{
                     menuButton.setDisable(true);
                     lawn.setUpTime.pause();
                     lawn.pausePlay = true;
-                    pauseMenu = new ImageView(new Image(new FileInputStream("PlantsVsZombies_Images/InGameMenu.png"),435,506,false,false));
+                    pauseMenu = new ImageView(new Image(new FileInputStream("src/sample/PlantsVsZombies_Images/InGameMenu.png"),435,506,false,false));
                     setLayout(pauseMenu, 500,100);
                     lawn.getBackYard().getChildren().addAll(pauseMenu,backToMenu);
                 }catch (FileNotFoundException f){
@@ -805,7 +933,7 @@ class LawnMower{
     Timeline setUpTime;
 
     public LawnMower(int[] setPos, int Row, backYard lawn) throws FileNotFoundException {
-        lawnMowerImg = new ImageView(new Image(new FileInputStream("PlantsVsZombies_Images/Lawnmower.png"),125,90,false,false));
+        lawnMowerImg = new ImageView(new Image(new FileInputStream("src/sample/PlantsVsZombies_Images/Lawnmower.png"),125,90,false,false));
         lawnMowerImg.setLayoutX(setPos[0]);
         lawnMowerImg.setLayoutY(setPos[1]);
         this.Row = Row;
@@ -825,7 +953,7 @@ class LawnMower{
     }
 
     public void setupTimeLine(){
-        KeyFrame newKey = new KeyFrame(Duration.millis(1000*0.01), new TimeHandler());
+        KeyFrame newKey = new KeyFrame(Duration.millis(1000*0.009), new TimeHandler());
         setUpTime = new Timeline(newKey);
         setUpTime.setCycleCount(Timeline.INDEFINITE);
         setUpTime.play();
@@ -837,6 +965,63 @@ class LawnMower{
                 lawnMowerImg.setX(lawnMowerImg.getX()+1);
             if(lawnMowerImg.getX()>1366)
                 setUpTime.stop();
+        }
+    }
+}
+
+class Sun{
+    protected ImageView sunImage;
+    private double speed = 0.01;
+    private double pos[] = {0,0};
+    Timeline setUpTime;
+    private backYard lawn;
+    private boolean sunFlowerProduce = false;
+
+    public Sun(backYard lawn, double[] pos,boolean value) {
+        try{
+            this.lawn = lawn;
+            sunImage = new ImageView(new Image(new FileInputStream( "src/sample/PlantsVsZombies_Images/sun.gif"),45,45,false,false));
+            this.pos = pos;
+            this.sunFlowerProduce = value;
+            sunImage.setLayoutX(this.pos[0]);
+            sunImage.setLayoutY(0);
+            if (value)
+                sunImage.setLayoutY(this.pos[1]-20);
+            setupTimeLine();
+        }
+        catch (Exception e){
+            System.out.println(e.getMessage());
+        }
+    }
+
+    public void setupTimeLine() {
+        KeyFrame newKey = new KeyFrame(Duration.millis(speed*1000), new TimeHandler());
+        setUpTime = new Timeline(newKey);
+        setUpTime.setCycleCount(Timeline.INDEFINITE);
+        setUpTime.play();
+    }
+
+    private class TimeHandler implements EventHandler<ActionEvent>{
+        private boolean mousePressed = false;
+        public void handle(ActionEvent event){
+            if (sunImage.getLayoutY() < pos[1]+10 && !mousePressed) {
+                sunImage.setLayoutY(sunImage.getLayoutY()+1);
+            }
+            sunImage.setOnMousePressed(e->{
+                TranslateTransition moveDiagnol;
+                mousePressed = true;
+                moveDiagnol = new TranslateTransition();
+                moveDiagnol.setDuration(Duration.millis(1000));
+                moveDiagnol.setNode(sunImage);
+                moveDiagnol.setToX(40-sunImage.getLayoutX());
+                moveDiagnol.setByY(20-sunImage.getLayoutY());
+                moveDiagnol.setCycleCount(1);
+                moveDiagnol.play();
+                lawn.setSunCount(25);
+                moveDiagnol.setOnFinished(x->{
+                    lawn.getBackYard().getChildren().remove(sunImage);
+                });
+            });
         }
     }
 }
@@ -882,7 +1067,7 @@ class Level {
 
     public Level(Stage primaryStage, Scene hp) throws FileNotFoundException {
         level = new Pane();
-        levelImg = new Background(new BackgroundImage(new Image(new FileInputStream("PlantsVsZombies_Images/levelBackground.png")), BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.CENTER, new BackgroundSize(1366, 768, false, false, false, false)));
+        levelImg = new Background(new BackgroundImage(new Image(new FileInputStream("src/sample/PlantsVsZombies_Images/levelBackground.png")), BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.CENTER, new BackgroundSize(1366, 768, false, false, false, false)));
         level.setBackground(levelImg);
         this.primaryStage = primaryStage;
         this.hp = hp;
@@ -892,11 +1077,11 @@ class Level {
         Button level3Btn = new Button();
         Button level4Btn = new Button();
         Button level5Btn = new Button();
-        BackgroundImage level1img = new BackgroundImage(new Image(new FileInputStream("PlantsVsZombies_Images/lvl1.png")),BackgroundRepeat.NO_REPEAT,BackgroundRepeat.NO_REPEAT,BackgroundPosition.CENTER,new BackgroundSize(150,220,false,false,false,false));
-        BackgroundImage level2img = new BackgroundImage(new Image(new FileInputStream("PlantsVsZombies_Images/lvl2.png")),BackgroundRepeat.NO_REPEAT,BackgroundRepeat.NO_REPEAT,BackgroundPosition.CENTER,new BackgroundSize(150,220,false,false,false,false));
-        BackgroundImage level3img = new BackgroundImage(new Image(new FileInputStream("PlantsVsZombies_Images/lvl3.png")),BackgroundRepeat.NO_REPEAT,BackgroundRepeat.NO_REPEAT,BackgroundPosition.CENTER,new BackgroundSize(150,220,false,false,false,false));
-        BackgroundImage level4img = new BackgroundImage(new Image(new FileInputStream("PlantsVsZombies_Images/lvl4.png")),BackgroundRepeat.NO_REPEAT,BackgroundRepeat.NO_REPEAT,BackgroundPosition.CENTER,new BackgroundSize(150,220,false,false,false,false));
-        BackgroundImage level5img = new BackgroundImage(new Image(new FileInputStream("PlantsVsZombies_Images/lvl5.png")),BackgroundRepeat.NO_REPEAT,BackgroundRepeat.NO_REPEAT,BackgroundPosition.CENTER,new BackgroundSize(150,220,false,false,false,false));
+        BackgroundImage level1img = new BackgroundImage(new Image(new FileInputStream("src/sample/PlantsVsZombies_Images/lvl1.png")),BackgroundRepeat.NO_REPEAT,BackgroundRepeat.NO_REPEAT,BackgroundPosition.CENTER,new BackgroundSize(150,220,false,false,false,false));
+        BackgroundImage level2img = new BackgroundImage(new Image(new FileInputStream("src/sample/PlantsVsZombies_Images/lvl2.png")),BackgroundRepeat.NO_REPEAT,BackgroundRepeat.NO_REPEAT,BackgroundPosition.CENTER,new BackgroundSize(150,220,false,false,false,false));
+        BackgroundImage level3img = new BackgroundImage(new Image(new FileInputStream("src/sample/PlantsVsZombies_Images/lvl3.png")),BackgroundRepeat.NO_REPEAT,BackgroundRepeat.NO_REPEAT,BackgroundPosition.CENTER,new BackgroundSize(150,220,false,false,false,false));
+        BackgroundImage level4img = new BackgroundImage(new Image(new FileInputStream("src/sample/PlantsVsZombies_Images/lvl4.png")),BackgroundRepeat.NO_REPEAT,BackgroundRepeat.NO_REPEAT,BackgroundPosition.CENTER,new BackgroundSize(150,220,false,false,false,false));
+        BackgroundImage level5img = new BackgroundImage(new Image(new FileInputStream("src/sample/PlantsVsZombies_Images/lvl5.png")),BackgroundRepeat.NO_REPEAT,BackgroundRepeat.NO_REPEAT,BackgroundPosition.CENTER,new BackgroundSize(150,220,false,false,false,false));
 
         level1Btn.setBackground(new Background(level1img));
         level1Btn.setLayoutY(250);
@@ -957,66 +1142,6 @@ class Level {
 
 class ChooseLevel{
     public void chooseLevel() {
-
-
-
-    }
-}
-
-class Sun{
-    protected ImageView sunImage;
-    private double speed = 0.01;
-    private double pos[] = {0,0};
-    Timeline setUpTime;
-    private backYard lawn;
-    private boolean sunFlowerProduce = false;
-
-    public Sun(backYard lawn, double[] pos,boolean value) {
-        try{
-            this.lawn = lawn;
-            sunImage = new ImageView(new Image(new FileInputStream( "PlantsVsZombies_Images/sun.gif"),45,45,false,false));
-            this.pos = pos;
-            this.sunFlowerProduce = value;
-            sunImage.setLayoutX(this.pos[0]);
-            sunImage.setLayoutY(0);
-            if (value)
-                sunImage.setLayoutY(this.pos[1]-20);
-            setupTimeLine();
-        }
-        catch (Exception e){
-            System.out.println(e.getMessage());
-        }
-    }
-
-    public void setupTimeLine() {
-        KeyFrame newKey = new KeyFrame(Duration.millis(speed*1000), new TimeHandler());
-        setUpTime = new Timeline(newKey);
-        setUpTime.setCycleCount(Timeline.INDEFINITE);
-        setUpTime.play();
-    }
-
-    private class TimeHandler implements EventHandler<ActionEvent>{
-        private boolean mousePressed = false;
-        public void handle(ActionEvent event){
-            if (sunImage.getLayoutY() < pos[1]+10 && !mousePressed) {
-                sunImage.setLayoutY(sunImage.getLayoutY()+1);
-            }
-            sunImage.setOnMousePressed(e->{
-                TranslateTransition moveDiagnol;
-                mousePressed = true;
-                moveDiagnol = new TranslateTransition();
-                moveDiagnol.setDuration(Duration.millis(1000));
-                moveDiagnol.setNode(sunImage);
-                moveDiagnol.setToX(40-sunImage.getLayoutX());
-                moveDiagnol.setByY(20-sunImage.getLayoutY());
-                moveDiagnol.setCycleCount(1);
-                moveDiagnol.play();
-                lawn.setSunCount(25);
-                moveDiagnol.setOnFinished(x->{
-                    lawn.getBackYard().getChildren().remove(sunImage);
-                });
-            });
-        }
     }
 }
 
@@ -1024,35 +1149,22 @@ public class Main extends Application {
     private String UserName;
     private backYard mainLawn;
     private Level levelScreen;
-
     @Override
     public void start(Stage primaryStage) throws Exception{
         Pane HomePage = new Pane();
         Scene hp = new Scene(HomePage,1366,768);
-        mainLawn = new backYard(1, hp, primaryStage);
+        mainLawn = new backYard(3, hp, primaryStage);
         Pane NewUserPane = new Pane();
         Scene mainLawnScene = new Scene(mainLawn.getBackYard(),1366,768);
-
         Scene NewUser = new Scene(NewUserPane,1366,768);
         primaryStage.setTitle("Plants Vs Zombies");
         Pane LoadingPane = new Pane();
-        Image main = new Image(new FileInputStream("PlantsVsZombies_Images/MainBack.jpg"));
+        Image main = new Image(new FileInputStream("src/sample/PlantsVsZombies_Images/MainBack.jpg"));
         BackgroundImage bgMain = new BackgroundImage(main, BackgroundRepeat.NO_REPEAT,BackgroundRepeat.NO_REPEAT, BackgroundPosition.DEFAULT,new BackgroundSize(1376,768.,false,false,false,false));
         LoadingPane.setBackground(new Background(bgMain));
 
         levelScreen = new Level(primaryStage,hp);
         Scene levelScene = new Scene (levelScreen.getLevel(),1366,768);
-
-
-//        Text text = new Text();
-//        text.setFont(Font.font("verdana", FontWeight.BOLD, FontPosture.REGULAR, 50));
-//        text.setX(500);
-//        text.setX(50);
-//
-//        text.setFill(Color.WHITE);
-//        text.setText("CHOOSE LEVEL");
-//        Group textGroup = new Group(text);
-
 
         //Creating Loading Page
         Button b = new Button();
@@ -1060,16 +1172,16 @@ public class Main extends Application {
         b.setLayoutY(678);
         b.setMinSize(410,63);
         b.setOpacity(0);
-        BackgroundImage bLoad = new BackgroundImage(new Image(new FileInputStream("PlantsVsZombies_Images/LoadGame.png")),BackgroundRepeat.NO_REPEAT,BackgroundRepeat.NO_REPEAT,BackgroundPosition.CENTER,new BackgroundSize(418,58,false,false,false,false));
+        BackgroundImage bLoad = new BackgroundImage(new Image(new FileInputStream("src/sample/PlantsVsZombies_Images/LoadGame.png")),BackgroundRepeat.NO_REPEAT,BackgroundRepeat.NO_REPEAT,BackgroundPosition.CENTER,new BackgroundSize(418,58,false,false,false,false));
         b.setBackground(new Background(bLoad));
         LoadingPane.getChildren().add(b);
-        Image hmpage = new Image(new FileInputStream("PlantsVsZombies_Images/HomePage.png"));
+        Image hmpage = new Image(new FileInputStream("src/sample/PlantsVsZombies_Images/HomePage.png"));
         BackgroundImage bgHm = new BackgroundImage(hmpage,BackgroundRepeat.NO_REPEAT,BackgroundRepeat.NO_REPEAT,BackgroundPosition.CENTER,new BackgroundSize(1376,768,false,false,false,false));
         HomePage.setBackground(new Background(bgHm));
         Button adventureB = new Button();
-        BackgroundImage aventb = new BackgroundImage(new Image(new FileInputStream("PlantsVsZombies_Images/AdventureMode.png")),BackgroundRepeat.NO_REPEAT,BackgroundRepeat.NO_REPEAT,BackgroundPosition.CENTER,new BackgroundSize(555,155,false,false,false,false));
-        BackgroundImage aventb1 = new BackgroundImage(new Image(new FileInputStream("PlantsVsZombies_Images/AdventureMode2.png")),BackgroundRepeat.NO_REPEAT,BackgroundRepeat.NO_REPEAT,BackgroundPosition.CENTER,new BackgroundSize(555,155,false,false,false,false));
-        BackgroundImage aventb2 = new BackgroundImage(new Image(new FileInputStream("PlantsVsZombies_Images/AdventureMode3.png")),BackgroundRepeat.NO_REPEAT,BackgroundRepeat.NO_REPEAT,BackgroundPosition.CENTER,new BackgroundSize(555,155,false,false,false,false));
+        BackgroundImage aventb = new BackgroundImage(new Image(new FileInputStream("src/sample/PlantsVsZombies_Images/AdventureMode.png")),BackgroundRepeat.NO_REPEAT,BackgroundRepeat.NO_REPEAT,BackgroundPosition.CENTER,new BackgroundSize(555,155,false,false,false,false));
+        BackgroundImage aventb1 = new BackgroundImage(new Image(new FileInputStream("src/sample/PlantsVsZombies_Images/AdventureMode2.png")),BackgroundRepeat.NO_REPEAT,BackgroundRepeat.NO_REPEAT,BackgroundPosition.CENTER,new BackgroundSize(555,155,false,false,false,false));
+        BackgroundImage aventb2 = new BackgroundImage(new Image(new FileInputStream("src/sample/PlantsVsZombies_Images/AdventureMode3.png")),BackgroundRepeat.NO_REPEAT,BackgroundRepeat.NO_REPEAT,BackgroundPosition.CENTER,new BackgroundSize(555,155,false,false,false,false));
         adventureB.setBackground(new Background(aventb));
         adventureB.setLayoutY(100);
         adventureB.setLayoutX(700);
@@ -1085,13 +1197,13 @@ public class Main extends Application {
         });
 
         //Adding New User
-        BackgroundImage NewUserBg = new BackgroundImage(new Image(new FileInputStream("PlantsVsZombies_Images/NewUserbg.jpg")),BackgroundRepeat.NO_REPEAT,BackgroundRepeat.NO_REPEAT,BackgroundPosition.CENTER,new BackgroundSize(1366,768,false,false,false,false));
+        BackgroundImage NewUserBg = new BackgroundImage(new Image(new FileInputStream("src/sample/PlantsVsZombies_Images/NewUserbg.jpg")),BackgroundRepeat.NO_REPEAT,BackgroundRepeat.NO_REPEAT,BackgroundPosition.CENTER,new BackgroundSize(1366,768,false,false,false,false));
         NewUserPane.setBackground(new Background(NewUserBg));
-        ImageView img = new ImageView(new Image(new FileInputStream("PlantsVsZombies_Images/New_User.png")));
+        ImageView img = new ImageView(new Image(new FileInputStream("src/sample/PlantsVsZombies_Images/New_User.png")));
         Button UserOk = new Button();
-        Image okbi = new Image(new FileInputStream("PlantsVsZombies_Images/NewUserok.png"));
-        Image okb2 = new Image(new FileInputStream(("PlantsVsZombies_Images/NewUserok2.png")));
-        Image okb3 = new Image(new FileInputStream(("PlantsVsZombies_Images/NewUserok3.png")));
+        Image okbi = new Image(new FileInputStream("src/sample/PlantsVsZombies_Images/NewUserok.png"));
+        Image okb2 = new Image(new FileInputStream(("src/sample/PlantsVsZombies_Images/NewUserok2.png")));
+        Image okb3 = new Image(new FileInputStream(("src/sample/PlantsVsZombies_Images/NewUserok3.png")));
         Background Userok1 =new Background(new BackgroundImage(okbi,BackgroundRepeat.NO_REPEAT,BackgroundRepeat.NO_REPEAT,BackgroundPosition.CENTER,BackgroundSize.DEFAULT));
         Background Userok2 =new Background(new BackgroundImage(okb2,BackgroundRepeat.NO_REPEAT,BackgroundRepeat.NO_REPEAT,BackgroundPosition.CENTER,BackgroundSize.DEFAULT));
         Background Userok3 =new Background(new BackgroundImage(okb3,BackgroundRepeat.NO_REPEAT,BackgroundRepeat.NO_REPEAT,BackgroundPosition.CENTER,BackgroundSize.DEFAULT));
@@ -1120,10 +1232,10 @@ public class Main extends Application {
         NewUserPane.getChildren().add(UserOk);
         NewUserPane.getStylesheets().add("/sample/CSSButtonShape.CSS");
 
-        //Main HomePage
-        BackgroundImage miniB1 = new BackgroundImage(new Image(new FileInputStream("PlantsVsZombies_Images/miniGames1.png")),BackgroundRepeat.NO_REPEAT,BackgroundRepeat.NO_REPEAT,BackgroundPosition.CENTER,new BackgroundSize(537,120,false,false,false,false));
-        BackgroundImage miniB2 = new BackgroundImage(new Image(new FileInputStream("PlantsVsZombies_Images/miniGames2.png")),BackgroundRepeat.NO_REPEAT,BackgroundRepeat.NO_REPEAT,BackgroundPosition.CENTER,new BackgroundSize(537,120,false,false,false,false));
-        BackgroundImage miniB3 = new BackgroundImage(new Image(new FileInputStream("PlantsVsZombies_Images/miniGames3.png")),BackgroundRepeat.NO_REPEAT,BackgroundRepeat.NO_REPEAT,BackgroundPosition.CENTER,new BackgroundSize(537,120,false,false,false,false));
+        //Main HomePage\
+        BackgroundImage miniB1 = new BackgroundImage(new Image(new FileInputStream("src/sample/PlantsVsZombies_Images/miniGames1.png")),BackgroundRepeat.NO_REPEAT,BackgroundRepeat.NO_REPEAT,BackgroundPosition.CENTER,new BackgroundSize(537,120,false,false,false,false));
+        BackgroundImage miniB2 = new BackgroundImage(new Image(new FileInputStream("src/sample/PlantsVsZombies_Images/miniGames2.png")),BackgroundRepeat.NO_REPEAT,BackgroundRepeat.NO_REPEAT,BackgroundPosition.CENTER,new BackgroundSize(537,120,false,false,false,false));
+        BackgroundImage miniB3 = new BackgroundImage(new Image(new FileInputStream("src/sample/PlantsVsZombies_Images/miniGames3.png")),BackgroundRepeat.NO_REPEAT,BackgroundRepeat.NO_REPEAT,BackgroundPosition.CENTER,new BackgroundSize(537,120,false,false,false,false));
         Button miniGameB = new Button();
         miniGameB.setMinSize(540,120);
         miniGameB.setRotate(6);
@@ -1152,7 +1264,7 @@ public class Main extends Application {
         adventureB.setRotate(5);
         HomePage.getChildren().add(adventureB);
         HomePage.getChildren().add(LevelTf);
-        HomePage.getStylesheets().add("/CSSButtonShape.CSS");
+        HomePage.getStylesheets().add("/sample/CSSButtonShape.CSS");
 
         LevelTf.setOnMouseClicked(e->{
             if (LevelTf.getText().equals("New Game")){
@@ -1195,6 +1307,7 @@ public class Main extends Application {
             }
             else if (LevelTf.getText().equals("Choose Level")){
                 primaryStage.setScene(levelScene);
+
             }
         });
         adventureB.setOnMouseReleased(e->{
@@ -1214,8 +1327,6 @@ public class Main extends Application {
         });
 
         primaryStage.setScene(new Scene(LoadingPane,1366,768));
-//        primaryStage.setScene(mainLawnScene);
-//        primaryStage.setScene(levelScene);
         primaryStage.setScene(hp);
         mainLawn.play();
         primaryStage.setResizable(false);
