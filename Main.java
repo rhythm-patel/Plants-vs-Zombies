@@ -840,18 +840,125 @@ class LawnMower{
     }
 }
 
-class Level{
+class User{
+    private String name;
+    private int levelPlayable = 1;
+    private ArrayList<backYard> games = new ArrayList<>();
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public int getLevelPlayable() {
+        return levelPlayable;
+    }
+
+    public void setLevelPlayable(int levelPlayable) {
+        this.levelPlayable = levelPlayable;
+    }
+
+}
+
+class Level {
     private Pane level;
     private Background levelImg;
+    private Stage primaryStage;
+    private Scene mainLawnScene;
+    private backYard mainLawn;
+    private Scene hp;
 
-    public Level() throws FileNotFoundException {
+    public void activateLevel(int lvl){
+        mainLawn = new backYard(lvl, hp, primaryStage);
+        mainLawnScene = new Scene(mainLawn.getBackYard(),1366,768);
+        primaryStage.setScene(mainLawnScene);
+        mainLawn.play();
+    }
+
+
+    public Level(Stage primaryStage, Scene hp) throws FileNotFoundException {
         level = new Pane();
-        levelImg = new Background(new BackgroundImage(new Image(new FileInputStream("PlantsVsZombies_Images/levelBackground.png")),BackgroundRepeat.NO_REPEAT,BackgroundRepeat.NO_REPEAT,BackgroundPosition.CENTER,new BackgroundSize(1366,768,false,false,false,false)));
+        levelImg = new Background(new BackgroundImage(new Image(new FileInputStream("PlantsVsZombies_Images/levelBackground.png")), BackgroundRepeat.NO_REPEAT, BackgroundRepeat.NO_REPEAT, BackgroundPosition.CENTER, new BackgroundSize(1366, 768, false, false, false, false)));
         level.setBackground(levelImg);
+        this.primaryStage = primaryStage;
+        this.hp = hp;
+
+        Button level1Btn = new Button();
+        Button level2Btn = new Button();
+        Button level3Btn = new Button();
+        Button level4Btn = new Button();
+        Button level5Btn = new Button();
+        BackgroundImage level1img = new BackgroundImage(new Image(new FileInputStream("PlantsVsZombies_Images/lvl1.png")),BackgroundRepeat.NO_REPEAT,BackgroundRepeat.NO_REPEAT,BackgroundPosition.CENTER,new BackgroundSize(150,220,false,false,false,false));
+        BackgroundImage level2img = new BackgroundImage(new Image(new FileInputStream("PlantsVsZombies_Images/lvl2.png")),BackgroundRepeat.NO_REPEAT,BackgroundRepeat.NO_REPEAT,BackgroundPosition.CENTER,new BackgroundSize(150,220,false,false,false,false));
+        BackgroundImage level3img = new BackgroundImage(new Image(new FileInputStream("PlantsVsZombies_Images/lvl3.png")),BackgroundRepeat.NO_REPEAT,BackgroundRepeat.NO_REPEAT,BackgroundPosition.CENTER,new BackgroundSize(150,220,false,false,false,false));
+        BackgroundImage level4img = new BackgroundImage(new Image(new FileInputStream("PlantsVsZombies_Images/lvl4.png")),BackgroundRepeat.NO_REPEAT,BackgroundRepeat.NO_REPEAT,BackgroundPosition.CENTER,new BackgroundSize(150,220,false,false,false,false));
+        BackgroundImage level5img = new BackgroundImage(new Image(new FileInputStream("PlantsVsZombies_Images/lvl5.png")),BackgroundRepeat.NO_REPEAT,BackgroundRepeat.NO_REPEAT,BackgroundPosition.CENTER,new BackgroundSize(150,220,false,false,false,false));
+
+        level1Btn.setBackground(new Background(level1img));
+        level1Btn.setLayoutY(250);
+        level1Btn.setLayoutX(160);
+        level1Btn.setMinSize(150,220);
+        this.getLevel().getChildren().add(level1Btn);
+
+        level1Btn.setOnMouseClicked(e->{
+            this.activateLevel(1);
+        });
+
+        level2Btn.setBackground(new Background(level2img));
+        level2Btn.setLayoutY(250);
+        level2Btn.setLayoutX(380);
+        level2Btn.setMinSize(150,220);
+        this.getLevel().getChildren().add(level2Btn);
+
+        level2Btn.setOnMouseClicked(e->{
+            this.activateLevel(2);
+        });
+
+        level3Btn.setBackground(new Background(level3img));
+        level3Btn.setLayoutY(250);
+        level3Btn.setLayoutX(600);
+        level3Btn.setMinSize(150,220);
+        this.getLevel().getChildren().add(level3Btn);
+
+        level3Btn.setOnMouseClicked(e->{
+            this.activateLevel(3);
+        });
+
+        level4Btn.setBackground(new Background(level4img));
+        level4Btn.setLayoutY(250);
+        level4Btn.setLayoutX(820);
+        level4Btn.setMinSize(150,220);
+        this.getLevel().getChildren().add(level4Btn);
+
+        level4Btn.setOnMouseClicked(e->{
+            this.activateLevel(4);
+        });
+
+        level5Btn.setBackground(new Background(level5img));
+        level5Btn.setLayoutY(250);
+        level5Btn.setLayoutX(1040);
+        level5Btn.setMinSize(150,220);
+        this.getLevel().getChildren().add(level5Btn);
+
+        level5Btn.setOnMouseClicked(e->{
+            this.activateLevel(5);
+        });
     }
 
     public Pane getLevel() {
         return level;
+    }
+
+}
+
+class ChooseLevel{
+    public void chooseLevel() {
+
+
+
     }
 }
 
@@ -921,9 +1028,10 @@ public class Main extends Application {
     public void start(Stage primaryStage) throws Exception{
         Pane HomePage = new Pane();
         Scene hp = new Scene(HomePage,1366,768);
-        mainLawn = new backYard(4, hp, primaryStage);
+        mainLawn = new backYard(1, hp, primaryStage);
         Pane NewUserPane = new Pane();
         Scene mainLawnScene = new Scene(mainLawn.getBackYard(),1366,768);
+
         Scene NewUser = new Scene(NewUserPane,1366,768);
         primaryStage.setTitle("Plants Vs Zombies");
         Pane LoadingPane = new Pane();
@@ -931,7 +1039,7 @@ public class Main extends Application {
         BackgroundImage bgMain = new BackgroundImage(main, BackgroundRepeat.NO_REPEAT,BackgroundRepeat.NO_REPEAT, BackgroundPosition.DEFAULT,new BackgroundSize(1376,768.,false,false,false,false));
         LoadingPane.setBackground(new Background(bgMain));
 
-        levelScreen = new Level();
+        levelScreen = new Level(primaryStage,hp);
         Scene levelScene = new Scene (levelScreen.getLevel(),1366,768);
 
 
@@ -944,47 +1052,6 @@ public class Main extends Application {
 //        text.setText("CHOOSE LEVEL");
 //        Group textGroup = new Group(text);
 
-
-        Button level1Btn = new Button();
-        Button level2Btn = new Button();
-        Button level3Btn = new Button();
-        Button level4Btn = new Button();
-        Button level5Btn = new Button();
-        BackgroundImage level1img = new BackgroundImage(new Image(new FileInputStream("PlantsVsZombies_Images/lvl1.png")),BackgroundRepeat.NO_REPEAT,BackgroundRepeat.NO_REPEAT,BackgroundPosition.CENTER,new BackgroundSize(150,220,false,false,false,false));
-        BackgroundImage level2img = new BackgroundImage(new Image(new FileInputStream("PlantsVsZombies_Images/lvl2.png")),BackgroundRepeat.NO_REPEAT,BackgroundRepeat.NO_REPEAT,BackgroundPosition.CENTER,new BackgroundSize(150,220,false,false,false,false));
-        BackgroundImage level3img = new BackgroundImage(new Image(new FileInputStream("PlantsVsZombies_Images/lvl3.png")),BackgroundRepeat.NO_REPEAT,BackgroundRepeat.NO_REPEAT,BackgroundPosition.CENTER,new BackgroundSize(150,220,false,false,false,false));
-        BackgroundImage level4img = new BackgroundImage(new Image(new FileInputStream("PlantsVsZombies_Images/lvl4.png")),BackgroundRepeat.NO_REPEAT,BackgroundRepeat.NO_REPEAT,BackgroundPosition.CENTER,new BackgroundSize(150,220,false,false,false,false));
-        BackgroundImage level5img = new BackgroundImage(new Image(new FileInputStream("PlantsVsZombies_Images/lvl5.png")),BackgroundRepeat.NO_REPEAT,BackgroundRepeat.NO_REPEAT,BackgroundPosition.CENTER,new BackgroundSize(150,220,false,false,false,false));
-
-        level1Btn.setBackground(new Background(level1img));
-        level1Btn.setLayoutY(250);
-        level1Btn.setLayoutX(160);
-        level1Btn.setMinSize(150,220);
-        levelScreen.getLevel().getChildren().add(level1Btn);
-
-        level2Btn.setBackground(new Background(level2img));
-        level2Btn.setLayoutY(250);
-        level2Btn.setLayoutX(380);
-        level2Btn.setMinSize(150,220);
-        levelScreen.getLevel().getChildren().add(level2Btn);
-
-        level3Btn.setBackground(new Background(level3img));
-        level3Btn.setLayoutY(250);
-        level3Btn.setLayoutX(600);
-        level3Btn.setMinSize(150,220);
-        levelScreen.getLevel().getChildren().add(level3Btn);
-
-        level4Btn.setBackground(new Background(level4img));
-        level4Btn.setLayoutY(250);
-        level4Btn.setLayoutX(820);
-        level4Btn.setMinSize(150,220);
-        levelScreen.getLevel().getChildren().add(level4Btn);
-
-        level5Btn.setBackground(new Background(level5img));
-        level5Btn.setLayoutY(250);
-        level5Btn.setLayoutX(1040);
-        level5Btn.setMinSize(150,220);
-        levelScreen.getLevel().getChildren().add(level5Btn);
 
         //Creating Loading Page
         Button b = new Button();
@@ -1052,7 +1119,7 @@ public class Main extends Application {
         NewUserPane.getChildren().add(UserOk);
         NewUserPane.getStylesheets().add("/sample/CSSButtonShape.CSS");
 
-        //Main HomePage\
+        //Main HomePage
         BackgroundImage miniB1 = new BackgroundImage(new Image(new FileInputStream("PlantsVsZombies_Images/miniGames1.png")),BackgroundRepeat.NO_REPEAT,BackgroundRepeat.NO_REPEAT,BackgroundPosition.CENTER,new BackgroundSize(537,120,false,false,false,false));
         BackgroundImage miniB2 = new BackgroundImage(new Image(new FileInputStream("PlantsVsZombies_Images/miniGames2.png")),BackgroundRepeat.NO_REPEAT,BackgroundRepeat.NO_REPEAT,BackgroundPosition.CENTER,new BackgroundSize(537,120,false,false,false,false));
         BackgroundImage miniB3 = new BackgroundImage(new Image(new FileInputStream("PlantsVsZombies_Images/miniGames3.png")),BackgroundRepeat.NO_REPEAT,BackgroundRepeat.NO_REPEAT,BackgroundPosition.CENTER,new BackgroundSize(537,120,false,false,false,false));
@@ -1084,7 +1151,7 @@ public class Main extends Application {
         adventureB.setRotate(5);
         HomePage.getChildren().add(adventureB);
         HomePage.getChildren().add(LevelTf);
-        HomePage.getStylesheets().add("/sample/CSSButtonShape.CSS");
+        HomePage.getStylesheets().add("/CSSButtonShape.CSS");
 
         LevelTf.setOnMouseClicked(e->{
             if (LevelTf.getText().equals("New Game")){
@@ -1125,6 +1192,9 @@ public class Main extends Application {
                 primaryStage.setScene(mainLawnScene);
                 mainLawn.play();
             }
+            else if (LevelTf.getText().equals("Choose Level")){
+                primaryStage.setScene(levelScene);
+            }
         });
         adventureB.setOnMouseReleased(e->{
             adventureB.setBackground(new Background(aventb1));
@@ -1143,8 +1213,9 @@ public class Main extends Application {
         });
 
         primaryStage.setScene(new Scene(LoadingPane,1366,768));
-        primaryStage.setScene(mainLawnScene);
+//        primaryStage.setScene(mainLawnScene);
 //        primaryStage.setScene(levelScene);
+        primaryStage.setScene(hp);
         mainLawn.play();
         primaryStage.setResizable(false);
         primaryStage.show();
