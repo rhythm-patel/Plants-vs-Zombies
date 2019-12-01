@@ -1160,6 +1160,12 @@ class ChooseLevel{
     }
 }
 
+class NoMusicException extends Exception{
+    NoMusicException(String message){
+        super(message);
+    }
+}
+
 public class Main extends Application {
     private static MediaPlayer mediaPlayer;
     private String UserName;
@@ -1208,12 +1214,16 @@ public class Main extends Application {
 //            clip.open(audioIn);
 //            clip.start();
 
-            AudioInputStream audioIn = AudioSystem.getAudioInputStream(new File("/Users/rhythm/IdeaProjects/Plants-vs-Zombies/PvZmusic.wav"));
-            Clip clip = AudioSystem.getClip();
-            clip.open(audioIn);
-            clip.start();
-            clip.loop(Clip.LOOP_CONTINUOUSLY);
-
+            try {
+                AudioInputStream audioIn = AudioSystem.getAudioInputStream(new File("/Users/rhythm/IdeaProjects/Plants-vs-Zombies/PvZmusic.wav"));
+                Clip clip = AudioSystem.getClip();
+                clip.open(audioIn);
+                clip.start();
+                clip.loop(Clip.LOOP_CONTINUOUSLY);
+            }
+            catch (FileNotFoundException e){
+                throw new NoMusicException("No Music File Found");
+            }
 
 
 //        addMusic();
