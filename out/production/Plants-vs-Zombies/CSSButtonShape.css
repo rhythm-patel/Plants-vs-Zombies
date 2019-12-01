@@ -4,7 +4,12 @@
     -fx-font-weight: bolder;
     -fx-font-size: 20px;
 }
-
+.text_UserName2{
+    -fx-text-fill: #000000;
+    -fx-font-family: "Comic Sans MS","Times New Roman",sans-serif;
+    -fx-font-weight: bolder;
+    -fx-font-size: 20px;
+}
 .textField_color{
     -fx-background-color: transparent;
     -fx-border-color: transparent;
@@ -24,4 +29,8 @@
     -fx-font-family: "Times New Roman",sans-serif;
     -fx-font-size: 20px;
     -fx-font-weight: bolder;
+}
+
+.text-area, .text-area .viewport, .text-area .content {
+    -fx-background-color: transparent;
 }
