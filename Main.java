@@ -11,14 +11,30 @@ import javafx.scene.control.TextField;
 import javafx.scene.effect.Glow;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.KeyCode;
 import javafx.scene.layout.*;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
+import javafx.scene.media.MediaView;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 import javafx.event.EventHandler;
 import javafx.event.ActionEvent;
+
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
+import java.applet.Applet;
+import java.applet.AudioClip;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.io.InputStream;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.nio.file.Paths;
 import java.util.*;
+
 
 abstract class Actor{
     protected double Health;
@@ -1145,13 +1161,76 @@ class ChooseLevel{
 }
 
 public class Main extends Application {
+    private static MediaPlayer mediaPlayer;
     private String UserName;
     private backYard mainLawn;
     private Level levelScreen;
     public static ArrayList<User> users = new ArrayList<>();
 
+//    private void play_audio(){
+//        AudioClip soundtrack = new AudioClip(this.getClass().getResource("music.mp3").toString());
+//        soundtrack.play();
+//    }
+
+    private static void addMusic(){
+        try {
+            File musicFile = new File("/Users/rhythm/Downloads/PvZmusic.mp3");
+            Media soundtrack = new Media(musicFile.toURI().toURL().toString());
+//            Media soundtrack = new Media(Paths.get("music.mp3").toUri().toString());
+            mediaPlayer = new MediaPlayer(soundtrack);
+//            soundPlayer.play();
+            mediaPlayer.setAutoPlay(true);
+            mediaPlayer.setOnEndOfMedia(() -> mediaPlayer.seek(Duration.ZERO));
+
+        } catch (Exception ex) {
+            System.out.println("fhdhfd");
+        }
+    }
+
     @Override
     public void start(Stage primaryStage) throws Exception{
+
+//        Media media = new Media("http://75.86.91.167/ftp/aescula/music/Plants%20Vs%20Zombies/Laura%20Shigihara%20-%20Plants%20vs.%20Zombies%20Soundtrack%20-%2002%20Crazy%20Dave%20(Intro%20Theme).mp3");
+//        MediaPlayer mediaPlayer = new MediaPlayer(media);
+//        MediaView mediaView = new MediaView(mediaPlayer);
+//        mediaPlayer.setAutoPlay(true);
+
+//        String bip = "/Users/rhythm/Downloads/PvZmusic.mp3";
+//        Media hit = new Media(new File(bip).toURI().toString());
+//        MediaPlayer mediaPlayer = new MediaPlayer(hit);
+//        mediaPlayer.play();
+//            Media media = new Media("http://75.86.91.167/ftp/aescula/music/Plants%20Vs%20Zombies/Laura%20Shigihara%20-%20Plants%20vs.%20Zombies%20Soundtrack%20-%2002%20Crazy%20Dave%20(Intro%20Theme).mp3");
+//            MediaPlayer mediaPlayer = new MediaPlayer(media);
+//            mediaPlayer.setAutoPlay(true);
+
+//            AudioInputStream audioIn = AudioSystem.getAudioInputStream(new FileInputStream("/Users/rhythm/Downloads/PvZmusic.mp3"));
+//            Clip clip = AudioSystem.getClip();
+//            clip.open(audioIn);
+//            clip.start();
+
+            AudioInputStream audioIn = AudioSystem.getAudioInputStream(new File("/Users/rhythm/IdeaProjects/Plants-vs-Zombies/PvZmusic.wav"));
+            Clip clip = AudioSystem.getClip();
+            clip.open(audioIn);
+            clip.start();
+            clip.loop(Clip.LOOP_CONTINUOUSLY);
+
+
+
+//        addMusic();
+//        play_audio();
+//        String musicFile = "/Users/rhythm/Downloads/PvZmusic.mp3";
+//
+//        Media sound = new Media("file:PvZmusic.wav");
+//        MediaPlayer mediaPlayer = new MediaPlayer(sound);
+//        mediaPlayer.play();
+
+
+//        Media musicFile = new Media("file:///Users/rhythm/Downloads/PvZmusic.mp3");
+//        mediaPlayer = new MediaPlayer(musicFile);
+//        mediaPlayer.setAutoPlay(true);
+
+//        AudioInputStream music = new AudioInputStream(new FileInputStream("/Users/rhythm/Downloads/PvZmusic.mp3"));
+
         Pane HomePage = new Pane();
         Scene hp = new Scene(HomePage,1366,768);
         mainLawn = new backYard(3, hp, primaryStage);
