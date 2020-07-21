@@ -34,11 +34,11 @@ But if you want to hear it, here's what you need to do.
 2. Jump to line number 2225
 3. It looks somewhat like this: 
 ```
-		AudioInputStream audioIn = AudioSystem.getAudioInputStream(new File("/Users/rhythm/IdeaProjects/Plants-vs-Zombies/PvZmusic.wav"));
-		Clip clip = AudioSystem.getClip();
-		clip.open(audioIn);
-		clip.start();
-		clip.loop(Clip.LOOP_CONTINUOUSLY);
+AudioInputStream audioIn = AudioSystem.getAudioInputStream(new File("/Users/rhythm/IdeaProjects/Plants-vs-Zombies/PvZmusic.wav"));
+Clip clip = AudioSystem.getClip();
+clip.open(audioIn);
+clip.start();
+clip.loop(Clip.LOOP_CONTINUOUSLY);
 ```
 4. Change the path in the new File() method to the actual path where your music file "PvZmusic.wav" is present and you are done!
 
