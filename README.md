@@ -57,7 +57,9 @@ Also you will need to setup the VM Option as follows (It shud be present in the 
 Now you can simply run the main class to run the game.  
 
 ### Use Case and UML Diagrams:
-You can find the  [UML diagram](https://github.com/rhythm-patel/Plants-vs-Zombies/blob/master/Plants%20vs%20Zombies%20UML%20Class%20Diagram.pdf) and the Use case over here.  
+You can find the  [UML diagram](https://github.com/rhythm-patel/Plants-vs-Zombies/blob/master/Plants%20vs%20Zombies%20UML%20Class%20Diagram.pdf) and the [Use case](https://github.com/rhythm-patel/Plants-vs-Zombies/blob/master/Use%20case.png?raw=true) over here.  
+
+#### Use Case:
 
 ![use case](https://github.com/rhythm-patel/Plants-vs-Zombies/blob/master/Use%20case.png?raw=true)
 
