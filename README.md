@@ -1,4 +1,4 @@
-# Plants v/s Zombies
+# Plants vs Zombies
 
 We have cloned Plants v/s zombies with much of the same functionalities as in the original version of the game. Our game offers 5 different levels (increasing in order of difficulty) with 5 different plants and 4 different zombies.
 
@@ -59,6 +59,6 @@ Now you can simply run the main class to run the game.
 ### Use Case and UML Diagrams:
 You can find the  [UML diagram](https://github.com/rhythm-patel/Plants-vs-Zombies/blob/master/Plants%20vs%20Zombies%20UML%20Class%20Diagram.pdf) and the Use case over here.  
 
-![use case](https://github.com/rhythm-patel/Plants-vs-Zombies/blob/master/Use%20case.png?raw=true).
+![use case](https://github.com/rhythm-patel/Plants-vs-Zombies/blob/master/Use%20case.png?raw=true)
 
 Hope this helps our fellow coders and developers!!
