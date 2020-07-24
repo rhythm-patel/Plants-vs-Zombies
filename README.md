@@ -1,6 +1,6 @@
 # Plants vs Zombies
 
-We have cloned Plants v/s zombies with much of the same functionalities as in the original version of the game. Our game offers 5 different levels (increasing in order of difficulty) with 5 different plants and 4 different zombies.
+We have cloned Plants vs zombies with much of the same functionalities as in the original version of the game. Our game offers 5 different levels (increasing in order of difficulty) with 5 different plants and 4 different zombies.
 
 The game uses Java as its base with JavaFX as the software platform. Some of the graphical components has been developed using CSS.
 
@@ -19,7 +19,7 @@ The game uses Java as its base with JavaFX as the software platform. Some of the
 ### Resources and modules used
 We used Timehandler class to setup different timelines for different objects. The class effectively handles the different threads created in the program, and help us maintain our focus on the much bigger picture.
 
-All the pictures and gifs used in the game have been taken from Plants v/s zombies fandom [page](https://plantsvszombies.fandom.com/wiki/Main_Page). The images have been edited to better suit the functionalities for our game. 
+All the pictures and gifs used in the game have been taken from Plants vs zombies fandom [page](https://plantsvszombies.fandom.com/wiki/Main_Page). The images have been edited to better suit the functionalities for our game. 
 
 ### Required modules for running the game:
 The game was developed using Java 13 and Javafx 13 SDK, but works well on 13 and above. I am attaching links to the newer versions of these modules.
