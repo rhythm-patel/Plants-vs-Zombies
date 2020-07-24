@@ -61,4 +61,4 @@ You can find the  [UML diagram](https://github.com/rhythm-patel/Plants-vs-Zombie
 
 ![use case](https://github.com/rhythm-patel/Plants-vs-Zombies/blob/master/Use%20case.png?raw=true)
 
-Hope this helps our fellow coders and developers!!
+Hope this helps our fellow coders and developers!
