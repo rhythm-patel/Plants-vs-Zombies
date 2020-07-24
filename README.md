@@ -46,8 +46,8 @@ clip.loop(Clip.LOOP_CONTINUOUSLY);
 For now, the application of our game is not available. We may put it up in the future. Fellow developers can directly pull the code using this command to a local repository:
 <br>
 
-	git init //For initializing the local repository
-	git pull https://github.com/Mohnish-Agrawal/Plants-vs-Zombies.git	
+	git init // For initializing the local repository
+	git pull https://github.com/rhythm-patel/Plants-vs-Zombies.git	
 <br>The project can be opened using any IDE and compiled easily. Before compiling, please set the JRE to Java 14, SDK path to your Java 14 Folder and add all the Javafx 14 lib to libraries section of project settings.
 
 Also you will need to setup the VM Option as follows (It shud be present in the run configurations of the IDE):
@@ -57,10 +57,8 @@ Also you will need to setup the VM Option as follows (It shud be present in the 
 Now you can simply run the main class to run the game.  
 
 ### Use Case and UML Diagrams:
-You can find the  [UML diagram](https://github.com/Mohnish-Agrawal/Plants-vs-Zombies/blob/master/Plants%20vs%20Zombies%20UML%20Class%20Diagram.pdf) and the Use case over here.  
+You can find the  [UML diagram](https://github.com/rhythm-patel/Plants-vs-Zombies/blob/master/Plants%20vs%20Zombies%20UML%20Class%20Diagram.pdf) and the Use case over here.  
 
-![use case](https://github.com/Mohnish-Agrawal/Plants-vs-Zombies/blob/master/Use%20case.png?raw=true).
+![use case](https://github.com/rhythm-patel/Plants-vs-Zombies/blob/master/Use%20case.png?raw=true).
 
 Hope this helps our fellow coders and developers!!
-
-
